@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Map Memo App - 卒業制作発表</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        /* 1. 基本配色（大人可愛いマゼンタ・ピンク系） */
+        :root {
+            --primary-color: #e0218a;
+            --secondary-color: #e94196;
+            --accent-color: #d81b84;
+            --bg-gradient: linear-gradient(135deg, #fff0f7 0%, #ffe6f0 50%, #ffd6e8 100%);
+            --slide-bg: #ffffff;
+            --text-main: #666;
+            --text-sub: #7a7a7a;
+            --card-shadow: rgba(224, 33, 138, 0.15);
+            --border-radius: 20px;
+            --tech-tag-bg: #fff0f7;
+        }
+
+        /* 2. スライド共通設定 */
+        * { box-sizing: border-box; }
+        body {
+            background: var(--bg-gradient);
+            display: grid;
+            gap: 40px;
+            grid-template-columns: 1fr;
+            margin: 0;
+            padding: 40px 0;
+            place-items: center;
+            font-family: 'Inter', 'M PLUS Rounded 1c', sans-serif;
+            color: var(--text-main);
+        }
+
+        .slide-container {
+            background-color: var(--slide-bg);
+            border-radius: 30px;
+            box-shadow: 0 30px 60px var(--card-shadow);
+            display: flex;
+            flex-direction: column;
+            height: 720px;
+            width: 1280px;
+            overflow: hidden;
+            position: relative;
+            padding: 50px 80px;
+        }
+
+        /* 装飾背景 */
+        .slide-container::before {
+            content: '';
+            position: absolute;
+            top: -100px;
+            right: -100px;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(233, 65, 150, 0.08) 0%, transparent 70%);
+            z-index: 0;
+        }
+
+        .slide-container > * { position: relative; z-index: 1; }
+
+        /* 3. タイポグラフィ */
+        h1 { font-size: 72px; color: var(--primary-color); margin: 0; font-weight: 900; letter-spacing: 2px; }
+        h2.slide-title {
+            font-size: 42px;
+            color: var(--secondary-color);
+            margin-bottom: 25px;
+            font-weight: 700;
+            border-left: 8px solid var(--primary-color);
+            padding-left: 20px;
+            line-height: 1.2;
+            text-align: left;
+        }
+        h3 { font-size: 26px; color: var(--accent-color); margin-bottom: 12px; font-weight: 700; }
+        p, li { font-size: 19px; color: var(--text-main); line-height: 1.6; margin: 0; }
+        .subtitle { font-size: 28px; color: var(--accent-color); margin-top: 15px; }
+
+        /* 4. レイアウトコンポーネント */
+        .content-area { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; width: 100%; }
+        .two-column { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; width: 100%; align-items: start; }
+
+        /* タイル表示用 */
+        .tiled-content { display: flex; gap: 25px; width: 100%; }
+        .tile { flex: 1; background-color: #fff; border-radius: var(--border-radius); padding: 30px; border: 2px solid #ffe6f0; box-shadow: 0 8px 20px var(--card-shadow); text-align: center; }
+        .tile .icon { font-size: 40px; color: var(--primary-color); margin-bottom: 20px; }
+
+        /* テーブルスタイル */
+        .center-table-wrapper { width: 100%; display: flex; justify-content: center; margin-top: 10px; }
+        .table-layout table { width: 100%; border-collapse: separate; border-spacing: 0; background: #fff; border-radius: var(--border-radius); overflow: hidden; border: 2px solid #ffe6f0; }
+        .table-layout th { background-color: var(--primary-color); color: #fff; text-align: left; padding: 15px 20px; font-size: 20px; }
+        .table-layout td { padding: 12px 20px; border-bottom: 1px solid #ffe6f0; font-size: 17px; color: var(--text-main); }
+        .db-table-container { margin-top: -10px; }
+        .db-table th { padding: 8px 15px; font-size: 16px; }
+        .db-table td { padding: 6px 15px; font-size: 14px; line-height: 1.2; }
+
+        /* スクリーンショット枠 */
+        .screenshot-frame {
+            background: #fff;
+            border: 2px solid #FFE6F0;
+            border-radius: 15px;
+            padding: 10px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+            width: 100%;
+            height: 380px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: #ccc;
+        }
+        .screenshot-frame i { font-size: 80px; margin-bottom: 15px; opacity: 0.3; }
+
+        /* リストスタイル */
+        .bullet-list { list-style: none; padding: 0; }
+        .bullet-list li { position: relative; padding-left: 35px; margin-bottom: 15px; }
+        .bullet-list i { position: absolute; left: 0; top: 5px; color: var(--primary-color); font-size: 20px; }
+        .bullet-list strong { color: var(--accent-color); }
+
+        /* 技術タグ */
+        .tech-tags { display: flex; gap: 10px; margin-top: 20px; justify-content: center; }
+        .tech-tag { background: var(--tech-tag-bg); color: var(--primary-color); padding: 5px 15px; border-radius: 20px; font-size: 16px; font-weight: 600; }
+
+        /* 用途ラベル */
+        .usage-badges { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 15px; }
+        .usage-badge { background: #fff; border: 1.5px solid var(--secondary-color); color: var(--secondary-color); padding: 4px 12px; border-radius: 15px; font-size: 14px; font-weight: bold; }
+
+        /* フッター */
+        .footer {
+            position: absolute;
+            bottom: 30px;
+            left: 80px;
+            right: 80px;
+            display: flex;
+            justify-content: space-between;
+            border-top: 2px dashed #ffe6f0;
+            padding-top: 15px;
+            font-size: 14px;
+            color: var(--accent-color);
+            z-index: 10;
+        }
+        .page-badge { background: var(--primary-color); color: #fff; padding: 4px 12px; border-radius: 10px; }
+
+        /* 装飾 */
+        .floating-rocket {
+            position: absolute;
+            top: 60px;
+            right: 80px;
+            font-size: 120px;
+            color: var(--primary-color);
+            opacity: 0.15;
+            transform: rotate(15deg);
+        }
+        code { background: #fdf2f8; padding: 2px 6px; border-radius: 4px; color: #be185d; font-family: monospace; font-weight: bold; }
+
+        /* Slide 5　微調整 */
+        .db-table th {
+            padding: 10px 20px;
+            font-size: 18px;
+        }
+
+        .db-table td {
+            padding: 8px 20px;
+            font-size: 16px;
+        }
+
+        #slide5 .db-table-container {
+        margin-top: -40px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Slide 1: Title -->
+<div class="slide-container" id="slide1">
+    <div class="floating-rocket"><i class="fa-solid fa-rocket"></i></div>
+    <div class="content-area" style="text-align: center;">
+        <div style="font-size: 32px; color: var(--primary-color); font-weight: 700; margin-bottom: 20px;">✨ MAP MEMO ✨</div>
+        <h1>Map Memo アプリ</h1>
+        <p class="subtitle">卒業制作発表</p>
+        <p style="margin-top: 30px; max-width: 800px; margin-left: auto; margin-right: auto;">
+            自分が行ったお店や行きたいお店を登録して、地図で確認できるメモアプリ
+        </p>
+        <div class="tech-tags">
+            <span class="tech-tag">Java (Servlet/JSP)</span>
+            <span class="tech-tag">MySQL</span>
+            <span class="tech-tag">JSTL</span>
+            <span class="tech-tag">JavaScript</span>
+            <span class="tech-tag">CSS</span>
+        </div>
+    </div>
+    <div class="footer"><span>Graduation Project: Map Memo App</span><span class="page-badge">01</span></div>
+</div>
+
+<!-- Slide 2: Background -->
+<div class="slide-container" id="slide2">
+    <h2 class="slide-title">開発の背景</h2>
+    <div class="content-area">
+        <div class="tiled-content">
+            <div class="tile">
+                <div class="icon"><i class="fa-solid fa-utensils"></i></div>
+                <h3>ランチ選びに迷う</h3>
+                <p>「今日なに食べる？」<br>美味しかったお店があったけど<br>すぐに思い出せない。</p>
+            </div>
+            <div class="tile">
+                <div class="icon"><i class="fa-solid fa-beer-mug-empty"></i></div>
+                <h3>飲み会の2軒目で悩む</h3>
+                <p>「この辺でいいお店ある？」<br>知っているお店はあるけど<br>すぐに提案できない。</p>
+            </div>
+            <div class="tile">
+                <div class="icon"><i class="fa-solid fa-bookmark"></i></div>
+                <h3>行きたいお店を忘れる</h3>
+                <p>「今度あの店へ行ってみよう」<br>気になったお店を<br>後で思い出せない。</p>
+            </div>
+        </div>
+    </div>
+    <div class="footer"><span>Project Background</span><span class="page-badge">02</span></div>
+</div>
+
+<!-- Slide 3: Purpose -->
+<div class="slide-container" id="slide3">
+    <h2 class="slide-title">アプリの目的</h2>
+    <div class="content-area">
+        <div class="tiled-content">
+            <div class="tile">
+                <div class="icon"><i class="fa-solid fa-list-check"></i></div>
+                <h3>お店情報の管理</h3>
+                <p>行った店や行きたい店を登録し<br>一覧で管理できるような<br>自分だけのグルメマップメモ。</p>
+            </div>
+
+            <div class="tile">
+                <div class="icon"><i class="fa-solid fa-map-location-dot"></i></div>
+                <h3>場所をすぐ確認</h3>
+                <p>Googleマップを利用して<br>お店の場所を<br>すぐ確認できるようにする。</p>
+            </div>
+
+            <div class="tile">
+                <div class="icon"><i class="fa-solid fa-lightbulb"></i></div>
+                <h3>お店をすぐ提案</h3>
+                <p>ランチや飲み会のときに<br>おすすめのお店を<br>すぐ提案できるようにする。</p>
+            </div>
+        </div>
+    </div>
+    <div class="footer"><span>Project Purpose</span><span class="page-badge">03</span></div>
+</div>
+
+<!-- Slide 4: Core Features -->
+<div class="slide-container" id="slide4">
+    <h2 class="slide-title">アプリケーションの主要機能</h2>
+    <div class="content-area">
+        <div class="center-table-wrapper">
+            <div class="table-layout" style="width: 90%; max-width: 1000px;">
+                <table>
+                    <thead><tr><th>機能</th><th>内容</th></tr></thead>
+                    <tbody>
+                        <tr><td>お店情報の登録</td><td>店名・駅名・Googleマップ埋め込みコードなどを登録</td></tr>
+                        <tr><td>一覧表示</td><td>登録した店舗をカード形式で一覧表示</td></tr>
+                        <tr><td>検索機能</td><td>駅名やカテゴリーで絞り込み</td></tr>
+                        <tr><td>情報の更新・削除</td><td>登録済みの情報を編集・削除</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="footer"><span>Core Functionality</span><span class="page-badge">04</span></div>
+</div>
+
+<!-- Slide 5: Tech Stack -->
+<div class="slide-container" id="slide5">
+    <h2 class="slide-title">技術スタック</h2>
+    <div class="content-area">
+        <div class="center-table-wrapper">
+            <div class="table-layout" style="width: 90%; max-width: 1000px;">
+                <table>
+                    <thead><tr><th>レイヤー</th><th>使用技術</th></tr></thead>
+                    <tbody>
+                        <tr><td>クライアント</td><td>Webブラウザ</td></tr>
+                        <tr><td>Webサーバ</td><td>Tomcat</td></tr>
+                        <tr><td>サーバサイド</td><td>Java / Servlet</td></tr>
+                        <tr><td>画面技術</td><td>JSP / CSS / JavaScript</td></tr>
+                        <tr><td>データベース</td><td>MySQL</td></tr>
+                        <tr><td>開発環境</td><td>Eclipse</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="footer"><span>Technology Stack</span><span class="page-badge">05</span></div>
+</div>
+
+<!-- Slide 6: DB Design -->
+<div class="slide-container" id="slide6">
+    <h2 class="slide-title">データベース設計</h2>
+    <div class="content-area db-table-container">
+        <h3 style="margin-top: 5px; margin-bottom: 5px; font-size: 22px;">restaurants テーブル レイアウト</h3>
+        <div class="table-layout db-table">
+            <table>
+                <thead><tr><th>カラム名</th><th>データ型</th><th>内容（★ = 必須項目）</th></tr></thead>
+                <tbody>
+                    <tr><td>id</td><td>INT</td><td>idで自動採番 / PRIMARY KEY, AUTO_INCREMENT</td></tr>
+                    <tr><td>name</td><td>VARCHAR(100)</td><td>★ 店名 / NOT NULL</td></tr>
+                    <tr><td>map_url</td><td>TEXT</td><td>★ Google Map 埋め込みコード / NOT NULL</td></tr>
+                    <tr><td>station</td><td>VARCHAR(50)</td><td>★ 最寄り駅 / NOT NULL</td></tr>
+                    <tr><td>category</td><td>VARCHAR(50)</td><td>★ お店のカテゴリー / NOT NULL</td></tr>
+                    <tr><td>memo</td><td>VARCHAR(100)</td><td>メモ</td></tr>
+                    <tr><td>visit</td><td>BOOLEAN</td><td>訪問済みフラグ</td></tr>
+                    <tr><td>good</td><td>BOOLEAN</td><td>お気に入りフラグ</td></tr>
+                    <tr><td>created_at</td><td>DATETIME</td><td>登録日 / CURRENT_TIMESTAMP</td></tr>
+                    <tr><td>updated_at</td><td>DATETIME</td><td>更新日 / CURRENT_TIMESTAMP</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="footer"><span>Database Schema</span><span class="page-badge">06</span></div>
+</div>
+
+<!-- Slide 7: Architecture -->
+<div class="slide-container" id="slide7">
+    <h2 class="slide-title">MVCパターンとDAO/DTO構成</h2>
+    <div class="content-area">
+        <div class="two-column">
+            <div style="background: #fffafa; padding: 20px; border-radius: 15px; border: 1px solid #ffe6f0;">
+                <h3>MVCパターン</h3>
+                <ul class="bullet-list" style="font-size: 16px;">
+                    <li><i class="fa-solid fa-cogs"></i> <code>Controller</code> Servletで制御</li>
+                    <li><i class="fa-solid fa-desktop"></i> <code>View</code> JSP + JSTLで画面表示</li>
+                    <li><i class="fa-solid fa-database"></i> <code>Model</code> DAO/DTOでデータ管理</li>
+                    <li><i class="fa-solid fa-plug"></i> DB接続は <code>DBConnection</code> で共通化</li>
+                </ul>
+            </div>
+            <div style="background: #fffafa; padding: 20px; border-radius: 15px; border: 1px solid #ffe6f0;">
+                <h3>Restaurant DAO / DTO </h3>
+                <ul  class="bullet-list" style="font-size: 16px;">
+                    <li><i class="fa-solid fa-file-lines"></i><code>DTO</code> 店舗情報の受け渡す Restaurant クラス</li>
+                    <li><i class="fa-solid fa-table"></i><code>DAO</code> DBのCRUD処理をまとめた DAO クラスと DBConnection クラスに分離</li>
+                </ul>
+                <div style="margin-top: 15px; font-size: 14px; border-top: 1px solid #ffe6f0; padding-top: 10px;">
+                    <i class="fa-solid fa-microchip"></i> <code>try-with-resources</code> により例外発生時も自動でリソースを安全に閉じる
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="footer"><span>System Architecture</span><span class="page-badge">07</span></div>
+</div>
+
+<!-- Slide 8: 画面遷移図 -->
+<div class="slide-container" id="slide8">
+    <h2 class="slide-title" style="margin-bottom: 5px;">画面遷移図</h2>
+    <div class="content-area" style="display: flex; justify-content: center; align-items: center;">
+        <div class="screenshot-frame" style="height: 500px; margin-bottom: 60px;">
+            <img src="img/flow.jpg" alt="画面遷移図" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+        </div>
+    </div>
+    <div class="footer"><span>Screen Transition Diagram</span><span class="page-badge">08</span></div>
+</div>
+
+<!-- Slide 9: List View -->
+<div class="slide-container" id="slide9">
+    <h2 class="slide-title">List 画面：一覧・検索機能の実装</h2>
+    <div class="content-area">
+        <div class="two-column">
+            <div>
+                <h3>機能解説</h3>
+                <ul class="bullet-list">
+                    <li><i class="fa-solid fa-server"></i> <code>ListServlet</code> でDBからデータを取得</li>
+                    <li><i class="fa-solid fa-filter"></i> 検索時は <code>findByCondition</code> で絞り込み</li>
+                    <li><i class="fa-solid fa-code"></i> JSTL <code>&lt;c:forEach&gt;</code> で店舗を表示</li>
+                    <li><i class="fa-solid fa-heart"></i> <code>&lt;c:if&gt;</code> で「お気に入り(💖)」等を表示</li>
+                </ul>
+            </div>
+            <div class="screenshot-frame">
+                <img src="img/TOP.png" alt="top画面" style="max-width:100%; max-height:100%; object-fit:contain;">
+            </div>
+        </div>
+    </div>
+    <div class="footer"><span>List View Implementation</span><span class="page-badge">09</span></div>
+</div>
+
+<!-- Slide 10: Add View -->
+<div class="slide-container" id="slide10">
+    <h2 class="slide-title">Add 画面：新規登録のフロー</h2>
+    <div class="content-area">
+        <div class="two-column">
+            <div class="screenshot-frame">
+                <img src="img/Add.png" alt="登録画面" style="max-width:100%; max-height:100%; object-fit:contain;">
+            </div>
+            <div>
+                <h3>実装のポイント</h3>
+                <ul class="bullet-list">
+                    <li><i class="fa-solid fa-language"></i> <strong>Encoding:</strong> UTF-8設定による文字化け防止</li>
+                    <li><i class="fa-solid fa-database"></i> <strong>Registration:</strong> doPostでDTOに格納して登録</li>
+                    <li><i class="fa-solid fa-triangle-exclamation"></i> <strong>Handling:</strong> チェックボックス未選択時のnull対策</li>
+                    <li><i class="fa-solid fa-arrow-right"></i> <strong>Redirect:</strong> 登録後はリダイレクト <code>二重送信防止</code></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="footer"><span>Add View Implementation</span><span class="page-badge">10</span></div>
+</div>
+
+<!-- Slide 11: Edit View -->
+<div class="slide-container" id="slide11">
+    <h2 class="slide-title">Edit 画面：編集・削除機能</h2>
+    <div class="content-area">
+        <div class="two-column">
+            <div>
+                <h3>ステータス管理</h3>
+                <ul class="bullet-list">
+                    <li><i class="fa-solid fa-magnifying-glass"></i> <strong>Data:</strong> <code>findByIdForEdit</code> で編集対象を取得</li>
+                    <li><i class="fa-solid fa-solid fa-pen"></i> <strong>JSTL:</strong> フォームにデータを表示</li>
+                    <li><i class="fa-solid fa-solid fa-trash"></i> <strong>Safety:</strong> 削除前に確認ダイアログ</li>
+                    <li><i class="fa-solid fa-arrow-left"></i> <strong>Redirect:</strong> 更新・削除後は一覧へ戻る</li>
+                </ul>
+            </div>
+            <div class="screenshot-frame">
+                <img src="img/Edit.png" alt="編集画面" style="max-width:100%; max-height:100%; object-fit:contain;">
+            </div>
+        </div>
+    </div>
+    <div class="footer"><span>Edit & Delete Flow</span><span class="page-badge">11</span></div>
+</div>
+
+<!-- Slide 12: Map View -->
+<div class="slide-container" id="slide12">
+    <h2 class="slide-title">Map 画面：Googleマップによる位置表示</h2>
+    <div class="content-area">
+        <div class="two-column" style="grid-template-columns: 1.2fr 0.8fr;">
+            <div class="screenshot-frame" style="height: 420px;">
+                <img src="img/Map.png" alt="地図表示画面" style="max-width:100%; max-height:100%; object-fit:contain;">
+            </div>
+            <div>
+                <h3>地図表示の仕組み</h3>
+                <ul class="bullet-list">
+                    <li><i class="fa-solid fa-link"></i> <strong>Parameter:</strong> URLパラメータでID取得</li>
+                    <li><i class="fa-solid fa-database"></i> <strong>DAO:</strong> 店舗情報をDBから取得</li>
+                    <li><i class="fa-solid fa-map"></i> <strong>Display:</strong> mapUrlをiframeで表示</li>
+                </ul>
+                <h3>地図連携のメリット</h3>
+                <ul class="bullet-list">
+                    <li><i class="fa-solid fa-location-dot"></i> Googleマップの埋め込みURLを利用</li>
+                    <li><i class="fa-solid fa-check-circle"></i> 地図表示機能を簡単に実装</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="footer"><span>Map Integration Benefits</span><span class="page-badge">12</span></div>
+</div>
+
+<!-- Slide 13: 工夫したところ -->
+<div class="slide-container" id="slide13">
+    <h2 class="slide-title">実装における工夫とこだわり</h2>
+    <div class="content-area">
+        <div class="tiled-content">
+
+            <div class="tile">
+                <div class="icon"><i class="fa-solid fa-layer-group"></i></div>
+                <h3>処理の役割分担</h3>
+                <p><code>Servlet・DTO・DAO</code> を分け、<br>
+                    画面処理とデータ処理を
+                    分離した構成に。
+                </p>
+            </div>
+
+            <div class="tile">
+                <div class="icon"><i class="fa-solid fa-shield-halved"></i></div>
+                <h3>二重送信の防止</h3>
+                <p>登録・更新処理の後は
+                    <code>sendRedirect</code> で、
+                    ブラウザの再読み込みによる
+                    二重送信を防止。
+                </p>
+            </div>
+
+            <div class="tile">
+                <div class="icon"><i class="fa-solid fa-shield"></i></div>
+                <h3>入力データの<br>安全対策</h3>
+                <p><code>escapeXml</code> で、
+                    HTMLの特殊文字を<br>
+                    エスケープして表示。
+                </p>
+            </div>
+
+            <div class="tile">
+                <div class="icon"><i class="fa-solid fa-code"></i></div>
+                <h3>JSを使用した<br>UIの改善</h3>
+                <p>確認ダイアログを<br>
+                    <code>JavaScript</code> で実装。<br>
+                    Twemojiを利用して、絵文字を画像表示に。<br>
+                </p>
+            </div>
+
+        </div>
+    </div>
+    <div class="footer"><span>Technical Efforts & Creative Solutions</span><span class="page-badge">13</span></div>
+</div>
+
+<!-- Slide 14: Summary -->
+<div class="slide-container" id="slide14">
+    <h2 class="slide-title">まとめ</h2>
+        <div class="content-area" style="text-align:center; font-size:25px; justify-content:flex-start;">
+            <div class="two-column" style="align-items: center;">
+            <div style="text-align: left;">
+                <ul class="bullet-list">
+                    <li><i class="fa-solid fa-thumbs-up"></i> 直感的な操作で自分好みのグルメマップを作成可能</li>
+                    <li><i class="fa-solid fa-eye"></i> GoogleMapによる可視化＆利便性を実現</li>
+                    <li><i class="fa-solid fa-laptop-code"></i> Javaの基礎からDB連携までを実装</li>
+                    <li><i class="fa-solid fa-shield-check"></i> <strong>MVC設計:</strong> 拡張性の高いシステム基盤</li>
+                </ul>
+                <div style="margin-top: 25px; padding: 15px; background: #fff5fa; border-radius: 15px; border: 1px solid #ffd6e8;">
+                    <p style="font-size: 20px; font-weight: bold; color: var(--accent-color); margin-bottom: 8px;">
+                        <i class="fa-solid fa-star"></i> 今後の展望：多様なジャンルへの応用
+                    </p>
+                    <div class="usage-badges">
+                        <span class="usage-badge"><i class="fa-solid fa-scissors"></i> 美容系サロン</span>
+                        <span class="usage-badge"><i class="fa-solid fa-plane"></i> 旅先のスポット</span>
+                        <span class="usage-badge"><i class="fa-solid fa-basketball"></i> 趣味の聖地巡礼</span>
+                    </div>
+                </div>
+            </div>
+            <div style="text-align: center;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <i class="fa-brands fa-java" style="font-size: 80px; color: var(--primary-color);"></i>
+                <i class="fa-solid fa-database" style="font-size: 80px; color: var(--primary-color);"></i>
+                <i class="fa-brands fa-css3-alt" style="font-size: 80px; color: var(--primary-color);"></i>
+                <i class="fa-brands fa-js" style="font-size: 80px; color: var(--primary-color);"></i>
+            </div>
+                <h3 style="margin-top: 20px; font-weight: bold; color: var(--primary-color);">Thank you for listening</h3>
+            </div>
+        </div>
+    </div>
+    <div class="footer"><span>Summary & Future</span><span class="page-badge">14</span></div>
+</div>
+
+</body>
+</html>
