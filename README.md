@@ -155,3 +155,10 @@ http://localhost:8080/MapMemoApp/list
 
 - GoogleマップのURLは「共有 → 地図を埋め込む → HTMLをコピー」で取得できます
 - 本アプリは職業訓練校の卒業制作として開発しました
+
+---
+
+## 🌸 卒業制作発表用スライド
+
+### スライド画面
+![スライド画面](readme-images/slide.jpeg)
