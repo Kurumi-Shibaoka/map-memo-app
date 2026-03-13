@@ -52,9 +52,9 @@ AIを正しく使いながら自分で考えて開発することも、これか
 
 | カテゴリ | 技術 |
 |----------|------|
-| サーバーサイド | Java / Servlet / JSP / JSTL |
+| サーバーサイド | Java / Servlet |
 | データベース | MySQL |
-| フロントエンド | HTML / CSS / JavaScript |
+| フロントエンド | JSP / JSTL / CSS / JavaScript |
 | Webサーバー | Apache Tomcat |
 | 開発環境 | Eclipse |
 | ライブラリ | Twemoji（絵文字の統一表示） |
